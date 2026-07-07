@@ -63,7 +63,14 @@ if (fs.existsSync(dbFile)) {
   fs.copyFileSync(dbFile, path.join(dest, "careercmd.db"));
 }
 
-// 5. Ensure better-sqlite3 native addon is present
+// 5. Copy .env.local for production
+const envFile = path.join(root, ".env.local");
+if (fs.existsSync(envFile)) {
+  console.log("Copying .env.local...");
+  fs.copyFileSync(envFile, path.join(dest, ".env.local"));
+}
+
+// 6. Ensure better-sqlite3 native addon is present
 // The standalone output should include it, but double-check
 const bSqliteSrc = path.join(root, "node_modules", "better-sqlite3");
 const bSqliteDest = path.join(dest, "node_modules", "better-sqlite3");

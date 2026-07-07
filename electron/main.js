@@ -1,5 +1,6 @@
 const { app, BrowserWindow, shell } = require("electron");
 const path = require("path");
+const fs = require("fs");
 const { spawn } = require("child_process");
 const http = require("http");
 
@@ -46,14 +47,26 @@ function startServer() {
   const standaloneDir = path.join(resourcesDir, ".next", "standalone");
   const serverScript = path.join(standaloneDir, "server.js");
 
+  // Load .env.local from resources
+  const envFile = path.join(resourcesDir, ".env.local");
+  const envVars = { ...process.env, PORT: String(PORT), HOSTNAME: "127.0.0.1", NODE_ENV: "production", NEXTAUTH_URL: `http://localhost:${PORT}` };
+  if (fs.existsSync(envFile)) {
+    const lines = fs.readFileSync(envFile, "utf8").split("\n");
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq > 0) {
+        const key = trimmed.slice(0, eq).trim();
+        const val = trimmed.slice(eq + 1).trim();
+        envVars[key] = val;
+      }
+    }
+  }
+
   serverProcess = spawn(process.execPath, [serverScript], {
     cwd: standaloneDir,
-    env: {
-      ...process.env,
-      PORT: String(PORT),
-      HOSTNAME: "127.0.0.1",
-      NODE_ENV: "production",
-    },
+    env: envVars,
     stdio: ["ignore", "pipe", "pipe"],
   });
 
