@@ -36,20 +36,17 @@ export default function AchievementBadges({ stats }: { stats: any }) {
   const [newUnlock, setNewUnlock] = useState<Achievement | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("hireops_achievements");
-    const prev: Set<string> = saved ? new Set(JSON.parse(saved)) : new Set();
-    const newlyUnlocked = new Set(prev);
-
-    ACHIEVEMENTS.forEach((a) => {
-      if (!prev.has(a.id) && a.condition(stats)) {
-        newlyUnlocked.add(a.id);
-        setNewUnlock(a);
-        setTimeout(() => setNewUnlock(null), 3000);
-      }
+    setUnlocked((prev) => {
+      const updated = new Set(prev);
+      ACHIEVEMENTS.forEach((a) => {
+        if (!updated.has(a.id) && a.condition(stats)) {
+          updated.add(a.id);
+          setNewUnlock(a);
+          setTimeout(() => setNewUnlock(null), 3000);
+        }
+      });
+      return updated;
     });
-
-    setUnlocked(newlyUnlocked);
-    localStorage.setItem("hireops_achievements", JSON.stringify([...newlyUnlocked]));
   }, [stats]);
 
   return (
