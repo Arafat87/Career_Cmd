@@ -19,6 +19,16 @@
 
 # production
 /build
+/electron-resources
+/release
+
+# database
+*.db
+*.db-shm
+*.db-wal
+
+# uploads
+/public/uploads/
 
 # misc
 .DS_Store
